@@ -15,4 +15,4 @@ mypy = {git = "https://github.com/python/mypy.git", ref = "fe0f9333f2722989437dc
 python_version = "3.7"
 
 [scripts]
-test = 'sh -c "pylint shelly && mypy shelly && pytest"'
+test = 'sh -c "pylint shellie && mypy shellie && pytest"'

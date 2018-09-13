@@ -4,7 +4,7 @@ from subprocess import CalledProcessError
 
 import pytest
 
-from shelly import sh, ShellCommandResult
+from shellie import sh, ShellCommandResult
 
 def test_simple_string_command():
     sh('ls -lrt')
@@ -91,3 +91,10 @@ def test_stdin_file():
     # One newline belongs to the test file, the other is a standard part of
     # cli.tool's output.
     assert result == ShellCommandResult(stdout='STDIN: Test input file.\n\n')
+
+
+@pytest.mark.xfail
+def test_pipes():
+    result = (sh('tests/cli.tool -o "hello"') | sh('tests/cli.tool -i')).run()
+    assert result == ShellCommandResult(
+        stdout='STDIN: STDOUT: hello\n\n')
