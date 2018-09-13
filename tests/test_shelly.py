@@ -32,6 +32,14 @@ def test_cli_tool_helper():
     sh % 'tests/cli.tool'
 
 
+def test_attribute_access_helper():
+    sh.ls('-lrt') == sh('ls -lrt')
+
+
+def test_item_access_helper():
+    sh['tests/cli.tool']('-o', 'hi') == sh('tests/cli.tool -o hi')
+
+
 def test_can_run():
     result = (sh % 'tests/cli.tool').run()
     assert result == ShellCommandResult()
@@ -83,10 +91,3 @@ def test_stdin_file():
     # One newline belongs to the test file, the other is a standard part of
     # cli.tool's output.
     assert result == ShellCommandResult(stdout='STDIN: Test input file.\n\n')
-
-
-@pytest.mark.xfail
-def test_pipes():
-    result = (sh('tests/cli.tool -o "hello"') | sh('tests/cli.tool -i')).run()
-    assert result == ShellCommandResult(
-        stdout='STDIN: STDOUT: hello\n\n')

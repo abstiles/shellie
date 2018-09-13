@@ -6,7 +6,7 @@ import subprocess
 import shlex
 import shutil
 
-from typing import Any, Optional, Dict, Union, List
+from typing import Any, Callable, Optional, Dict, Union, List
 from pathlib import Path
 from dataclasses import dataclass
 
@@ -73,7 +73,7 @@ class ShellCommand:
 
     @property
     def exit_code(self) -> int:
-        '''Run the command and extract only the stderr stream'''
+        '''Run the command and extract only the exit code'''
         return self.run().exit_code
 
     def raise_for_status(self) -> ShellCommandResult:
@@ -94,6 +94,14 @@ class _ShellStart:
 
     def __call__(self, command: Union[str, List[str]]) -> ShellCommand:
         return self % command
+
+    def __getitem__(self, name: str) -> Callable[..., ShellCommand]:
+        def command_builder(*args: str) -> ShellCommand:
+            return ShellCommand([name, *args])
+        return command_builder
+
+    def __getattr__(self, name: str) -> Callable[..., ShellCommand]:
+        return self[name]
 
 
 sh = _ShellStart()
