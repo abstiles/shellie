@@ -38,7 +38,7 @@ class ShellCommand:
             raise FileNotFoundError(
                 f'No such file or directory: "{self.command[0]}"')
 
-    def run(self) -> ShellCommandResult:
+    def run(self, *, raise_nonzero: bool = False) -> ShellCommandResult:
         '''Execute this command, returning its result.'''
 
         if isinstance(self.stdin, bytes) or self.stdin is None:
@@ -48,6 +48,8 @@ class ShellCommand:
             with open(self.stdin, 'rb') as infile:
                 result = subprocess.run(
                     self.command, stdin=infile, capture_output=True)
+        if raise_nonzero:
+            result.check_returncode()
         return ShellCommandResult(result.returncode,
                                   result.stdout,
                                   result.stderr)
@@ -58,6 +60,25 @@ class ShellCommand:
 
     def __lt__(self, input_file: str) -> 'ShellCommand':
         return ShellCommand(self.command, Path(input_file))
+
+    @property
+    def stdout(self) -> bytes:
+        '''Run the command and extract only the stdout stream'''
+        return self.run().stdout
+
+    @property
+    def stderr(self) -> bytes:
+        '''Run the command and extract only the stderr stream'''
+        return self.run().stderr
+
+    @property
+    def exit_code(self) -> int:
+        '''Run the command and extract only the stderr stream'''
+        return self.run().exit_code
+
+    def raise_for_status(self) -> ShellCommandResult:
+        '''Run the command, raising an exception if exit code is nonzero.'''
+        return self.run(raise_nonzero=True)
 
 
 class _ShellStart:
