@@ -8,8 +8,11 @@ name = "pypi"
 [dev-packages]
 pytest = "*"
 pylint = "*"
-mypy = "*"
 pytest-cov = "*"
+mypy = {git = "https://github.com/python/mypy.git", ref = "fe0f9333f2722989437dccc12810ea0adcb72a05"}
 
 [requires]
 python_version = "3.7"
+
+[scripts]
+test = 'sh -c "pylint shelly && mypy shelly && pytest"'

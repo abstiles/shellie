@@ -60,12 +60,19 @@ class ShellCommand:
         return ShellCommand(self.command, Path(input_file))
 
 
-def sh(command: Union[str, List[str]]) -> ShellCommand:
-    '''Convenience method for creating shell commands.'''
+class _ShellStart:
+    '''Convenience class for creating shell commands.'''
 
-    if isinstance(command, str):
-        command = shlex.split(command)
-    else:
-        command = list(command)
+    def __mod__(self, command: Union[str, List[str]]) -> ShellCommand:
+        if isinstance(command, str):
+            command = shlex.split(command)
+        else:
+            command = list(command)
 
-    return ShellCommand(command)
+        return ShellCommand(command)
+
+    def __call__(self, command: Union[str, List[str]]) -> ShellCommand:
+        return self % command
+
+
+sh = _ShellStart()
